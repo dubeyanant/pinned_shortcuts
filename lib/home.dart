@@ -1,13 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+List<Object?> foo = [];
+
 class NativeBridge {
   static const MethodChannel _channel = MethodChannel('com.example/native');
 
-  static void getNativeData(String name) async {
-    await _channel.invokeMethod('getNativeData', <String, String>{
-      "name": name,
-    }).then((value) => print(value));
+  static void sendNativeData(String name) async {
+    await _channel.invokeMethod('sendNativeData', <String, String>{"name": name});
+  }
+
+  static void getNativeData(BuildContext context) async {
+    await _channel.invokeMethod('getNativeData').then((value) {
+      for (int i = 0; i < value.length; i++) {
+        foo.add(value[i]);
+      }
+      if (foo.isNotEmpty) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AnotherScreen(),
+          ),
+        );
+      }
+    });
   }
 }
 
@@ -16,6 +32,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    NativeBridge.getNativeData(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -31,7 +49,7 @@ class HomeScreen extends StatelessWidget {
               ),
             );
           },
-          onLongPress: () => NativeBridge.getNativeData('Another Screen'),
+          onLongPress: () => NativeBridge.sendNativeData('Another Screen'),
           child: Container(
             height: 48,
             width: 120,
