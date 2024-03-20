@@ -12,7 +12,14 @@ import androidx.core.content.ContextCompat.getSystemService
 @RequiresApi(Build.VERSION_CODES.N_MR1)
 object Shortcuts {
 
-    fun setUp(context: Context, name: String) {
+    fun setUp(context: Context, name: String, imagePath: String) {
+
+        val imageId = context.resources.getIdentifier(
+            imagePath.substringAfterLast('/').substringBeforeLast('.'),
+            "drawable",
+            context.packageName
+        )
+
         val shortcutManager = getSystemService(context, ShortcutManager::class.java)
 
         val intent =
@@ -21,8 +28,7 @@ object Shortcuts {
 
         val shortcut = ShortcutInfo.Builder(context, name).setShortLabel(name)
             .setLongLabel("Open other screen")
-            .setIcon(Icon.createWithResource(context, R.drawable.page))
-
+            .setIcon(Icon.createWithResource(context, imageId))
             .setIntent(intent)
             .build()
 

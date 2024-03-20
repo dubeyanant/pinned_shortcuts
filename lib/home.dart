@@ -6,8 +6,14 @@ List<Object?> foo = [];
 class NativeBridge {
   static const MethodChannel _channel = MethodChannel('com.example/native');
 
-  static void sendNativeData(String name) async {
-    await _channel.invokeMethod('sendNativeData', <String, String>{"name": name});
+  static void sendNativeData({
+    required String name,
+    required String imagePath,
+  }) async {
+    await _channel.invokeMethod('sendNativeData', <String, String>{
+      "name": name,
+      "imagePath": imagePath,
+    });
   }
 
   static void getNativeData(BuildContext context) async {
@@ -49,7 +55,10 @@ class HomeScreen extends StatelessWidget {
               ),
             );
           },
-          onLongPress: () => NativeBridge.sendNativeData('Another Screen'),
+          onLongPress: () => NativeBridge.sendNativeData(
+            name: 'Another Screen',
+            imagePath: 'android/app/src/main/res/drawable/page.png',
+          ),
           child: Container(
             height: 48,
             width: 120,

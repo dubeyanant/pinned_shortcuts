@@ -26,11 +26,12 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger, kCHANNEL
         ).setMethodCallHandler { call, result ->
             if (call.method == "sendNativeData") {
-                if (!call.hasArgument("name")) {
-                    result.error("MissingArgumentError", "You must provide name parameter.", null)
+                if (!call.hasArgument("name") || !call.hasArgument("imagePath")) {
+                    result.error("MissingArgumentError", "You must provide name and imagePath parameters.", null)
                 }
                 val name: String = call.argument<String>("name")!!
-                val data = sendNativeData(name)
+                val imagePath: String = call.argument<String>("imagePath")!!
+                val data = sendNativeData(name, imagePath)
                 result.success(data)
             } else if (call.method == "getNativeData") {
                 Log.d("Screen Names Data", "Screen Names While result.success: $screenNames")
@@ -42,8 +43,8 @@ class MainActivity : FlutterActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun sendNativeData(name: String): String {
-        if (Build.VERSION.SDK_INT >= 25) Shortcuts.setUp(context, name)
+    private fun sendNativeData(name: String, imagePath: String): String {
+        if (Build.VERSION.SDK_INT >= 25) Shortcuts.setUp(context, name, imagePath)
         shortcutPin(context, name, 1)
         return ""
     }
