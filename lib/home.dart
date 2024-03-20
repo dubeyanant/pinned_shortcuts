@@ -1,4 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+class NativeBridge {
+  static const MethodChannel _channel = MethodChannel('com.example/native');
+
+  static void getNativeData(String name) async {
+    await _channel.invokeMethod('getNativeData', <String, String>{
+      "name": name,
+    }).then((value) => print(value));
+  }
+}
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -20,7 +31,7 @@ class HomeScreen extends StatelessWidget {
               ),
             );
           },
-          onLongPress: () {},
+          onLongPress: () => NativeBridge.getNativeData('Another Screen'),
           child: Container(
             height: 48,
             width: 120,
