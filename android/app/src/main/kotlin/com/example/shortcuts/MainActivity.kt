@@ -13,21 +13,25 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     private val kCHANNEL = "com.example/native"
-    private var screenNames : MutableList<String> = arrayListOf()
+    private var screenNames = ""
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        if (intent.hasExtra("screenToOpen")) {
-            screenNames.add(intent.extras?.getString("screenToOpen")!!)
-        }
+        if (intent.hasExtra("screenToOpen"))
+            screenNames += intent.extras?.getString("screenToOpen")!!
+
 
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger, kCHANNEL
         ).setMethodCallHandler { call, result ->
             if (call.method == "sendNativeData") {
                 if (!call.hasArgument("name") || !call.hasArgument("imagePath")) {
-                    result.error("MissingArgumentError", "You must provide name and imagePath parameters.", null)
+                    result.error(
+                        "MissingArgumentError",
+                        "You must provide name and imagePath parameters.",
+                        null
+                    )
                 }
                 val name: String = call.argument<String>("name")!!
                 val imagePath: String = call.argument<String>("imagePath")!!

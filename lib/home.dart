@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-List<Object?> foo = [];
+Object? incomingScreenData;
 
 class NativeBridge {
   static const MethodChannel _channel = MethodChannel('com.example/native');
@@ -18,14 +18,21 @@ class NativeBridge {
 
   static void getNativeData(BuildContext context) async {
     await _channel.invokeMethod('getNativeData').then((value) {
-      for (int i = 0; i < value.length; i++) {
-        foo.add(value[i]);
-      }
-      if (foo.isNotEmpty) {
+      incomingScreenData = value;
+      if (incomingScreenData != "") {
+        Widget? screenName;
+        switch (incomingScreenData) {
+          case "Other Screen":
+            screenName = const OtherScreen();
+          case "Another Screen":
+            screenName = const AnotherScreen();
+        }
+        if (screenName == null) return;
+
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const AnotherScreen(),
+            builder: (context) => screenName!,
           ),
         );
       }
@@ -46,35 +53,71 @@ class HomeScreen extends StatelessWidget {
         title: const Text('My App'),
       ),
       body: Center(
-        child: GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AnotherScreen(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const OtherScreen(),
+                  ),
+                );
+              },
+              onLongPress: () => NativeBridge.sendNativeData(
+                name: 'Other Screen',
+                imagePath: 'android/app/src/main/res/drawable/page.png',
               ),
-            );
-          },
-          onLongPress: () => NativeBridge.sendNativeData(
-            name: 'Another Screen',
-            imagePath: 'android/app/src/main/res/drawable/page.png',
-          ),
-          child: Container(
-            height: 48,
-            width: 120,
-            alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              color: Colors.amber,
-              borderRadius: BorderRadius.all(Radius.circular(24)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  offset: Offset(5, 5),
-                )
-              ],
+              child: Container(
+                height: 48,
+                width: 120,
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.all(Radius.circular(24)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(5, 5),
+                    )
+                  ],
+                ),
+                child: const Text('Click me'),
+              ),
             ),
-            child: const Text('Click me'),
-          ),
+            const SizedBox(height: 24),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AnotherScreen(),
+                  ),
+                );
+              },
+              onLongPress: () => NativeBridge.sendNativeData(
+                name: 'Another Screen',
+                imagePath: 'android/app/src/main/res/drawable/page.png',
+              ),
+              child: Container(
+                height: 48,
+                width: 120,
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(
+                  color: Colors.amber,
+                  borderRadius: BorderRadius.all(Radius.circular(24)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(5, 5),
+                    )
+                  ],
+                ),
+                child: const Text('Click me'),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -93,6 +136,23 @@ class AnotherScreen extends StatelessWidget {
       ),
       body: const Center(
         child: Text('This is another screen'),
+      ),
+    );
+  }
+}
+
+class OtherScreen extends StatelessWidget {
+  const OtherScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Other screen'),
+      ),
+      body: const Center(
+        child: Text('This is other screen'),
       ),
     );
   }
